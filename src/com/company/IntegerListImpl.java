@@ -8,13 +8,13 @@ public class IntegerListImpl implements IntegerList {
     private int size;
 
     public IntegerListImpl() {
-        this.storage = new Integer[0];
+        this.storage = new Integer[10];
     }
 
     @Override
     public Integer add(Integer item) {
         if (size == storage.length) {
-            storage = Arrays.copyOf(storage, (storage.length + 1));
+            storage = Arrays.copyOf(storage, (storage.length + (storage.length / 2)));
         }
         storage[size++] = item;
         return item;
@@ -39,24 +39,27 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public Integer remove(Integer item) {
-        if (indexOf(item) != -1) {
-            System.arraycopy(storage, indexOf(item) + 1, storage, indexOf(item), size - 1);
+        int removeItem = indexOf(item);
+        if (removeItem != -1) {
+            System.arraycopy(storage, removeItem + 1, storage, removeItem, size - 1);
             size--;
             return item;
         }
-        throw new NotFoundException();
+        throw new ItemNotFoundException();
     }
 
     @Override
     public Integer remove(int index) {
-        Integer removeItem = storage[index];
-        storage[index] = null;
-        if (index != storage.length - 1) {
-            System.arraycopy(storage, index + 1, storage, index, size - index);
-            size--;
-            return removeItem;
+        if (index >= 0 && index <= size - 1) {
+            Integer removeItem = storage[index];
+            storage[index] = null;
+            if (index != size - 1) {
+                System.arraycopy(storage, index + 1, storage, index, size - index);
+                size--;
+                return removeItem;
+            }
         }
-        throw new NotFoundException();
+        throw new ItemNotFoundException();
     }
 
     @Override
@@ -93,7 +96,7 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public boolean equals(IntegerList otherList) {
-        return Arrays.equals(storage, otherList.toArray());
+        return Arrays.equals(toArray(), otherList.toArray());
     }
 
     @Override
@@ -118,17 +121,14 @@ public class IntegerListImpl implements IntegerList {
         System.arraycopy(storage, 0, arr, 0, size);
         return arr;
     }
-
     @Override
     public int hashCode() {
-        int result = Objects.hash(size);
-        result = 31 * result + Arrays.hashCode(storage);
-        return result;
+        return Arrays.hashCode(storage);
     }
 
     private void validateIndex(int index) {
         if (index >= size - 1 && index <= 0) {
-            throw new NotFoundException();
+            throw new ItemNotFoundException();
         }
     }
 
